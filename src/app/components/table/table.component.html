@@ -26,6 +26,7 @@
           <th>W</th>
           <th>D</th>
           <th>L</th>
+          <th>Predict?</th>
          
         </tr>
       </thead>
@@ -47,6 +48,16 @@
           <td>{{ team.won }}</td>
           <td>{{ team.draw }}</td>
           <td>{{ team.lost }}</td>
+          <td class="check">
+            <input
+              (click)="predictService.removeOrAddTeamToPrediction([team.name])"
+              class="form-check-input"
+              type="checkbox"
+              value=""
+              id="{{ team.name }}"
+              [checked]="predictService.toBePredicted(team.name)"
+            />
+          </td>
           
         </tr>
       </tbody>

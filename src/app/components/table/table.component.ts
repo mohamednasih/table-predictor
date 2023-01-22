@@ -12,7 +12,7 @@ import { PredictService } from 'src/app/services/predict.service';
 export class TableComponent implements OnInit {
     leagueNames!:string[];
     table!:Team[];
-    constructor(private predictService:PredictService){
+    constructor(public predictService:PredictService){
 
     }
   ngOnInit(): void {
