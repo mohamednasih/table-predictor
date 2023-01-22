@@ -1,1 +1,38 @@
-<p>predict-fixture works!</p>
+<div *ngIf="fixturesToPrecict != null">
+    
+    <div class="text-center "  *ngFor="let fixtureToPrecict of fixturesToPrecict ;let i=index" [ngClass]="i == 0 ? '' : 'd-none d-sm-block'">
+     
+      <div class="row mt-4 " >
+        <div class="col-4">
+          <button class="btn"  
+           >
+            <img
+              class="img-fluid"
+              src="{{ predictService.getImage(fixtureToPrecict.home) }}"
+              alt=""
+              srcset=""
+            />
+          </button>
+        </div>
+        <div class="col-4 align-self-center justify-content-center">
+          <button class="btn btn-success" 
+          >Draw</button>
+        </div>
+        <div class="col-4">
+            <button class="btn" 
+            
+            >
+              <img
+                class="img-fluid"
+                src="{{ predictService.getImage(fixtureToPrecict.away) }}"
+                alt=""
+                srcset=""
+              />
+            </button>
+        </div>
+     
+    </div>
+   
+    
+    
+  </div>
