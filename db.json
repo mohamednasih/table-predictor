@@ -1,7 +1,7 @@
 {
   "league": [
     {
-      "name": "PL",
+      "id": "PL",
       "table": [
         {
           "name": "Arsenal",
@@ -370,7 +370,7 @@
       ]
     },
     {
-      "name": "LA LIGA",
+      "id": "LIGA",
       "fixtures": [
         { "home": "Rayo Vallecano", "away": "Real Sociedad" },
         { "home": "Espanyol", "away": "Real Betis" },
