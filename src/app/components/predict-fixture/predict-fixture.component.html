@@ -4,7 +4,10 @@
      
       <div class="row mt-4 " >
         <div class="col-4">
-          <button class="btn"  
+          <button class="btn"
+          (click)="predictService.teamWon(fixtureToPrecict.home);
+          predictService.teamLost(fixtureToPrecict.away);
+          predictService.predict(fixtureToPrecict,fixtureToPrecict.home)"  
            >
             <img
               class="img-fluid"
@@ -16,10 +19,16 @@
         </div>
         <div class="col-4 align-self-center justify-content-center">
           <button class="btn btn-success" 
+          (click)="predictService.teamDraw(fixtureToPrecict.home);
+          predictService.teamDraw(fixtureToPrecict.away);
+          predictService.predict(fixtureToPrecict,'draw')" 
           >Draw</button>
         </div>
         <div class="col-4">
             <button class="btn" 
+            (click)="predictService.teamLost(fixtureToPrecict.home);
+          predictService.teamWon(fixtureToPrecict.away);
+          predictService.predict(fixtureToPrecict,fixtureToPrecict.away)" 
             
             >
               <img
