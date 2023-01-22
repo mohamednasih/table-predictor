@@ -1,1 +1,55 @@
-<p>table works!</p>
+<div class="container table-responsive">
+    <div class="row my-sm-0 my-4 justify-content-between align-items-center">
+      <div class="col-sm-4 col-12 text-center mt-sm-2">
+        <select class="w-100"
+          (change)=" getLeagueByName($any($event.target).value)"
+          class=" form-select form-select-md "
+          aria-label=".form-select-lg example"
+        >
+          <option
+            *ngFor="let league of leagueNames"
+            value="{{ league }}"
+          >
+            {{ league }}
+          </option>
+        </select>
+      </div>
+     
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Club</th>
+          <th>MP</th>
+          <th>Pts</th>
+          <th>W</th>
+          <th>D</th>
+          <th>L</th>
+         
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let team of table; let i = index">
+          <td>{{ i + 1 }}</td>
+  
+          <td class="">
+            <img
+              class="d-none d-sm-inline"
+              src="{{ team.image }}"
+              alt=""
+              srcset=""
+            />
+            {{ team.name }}
+          </td>
+          <td>{{ team.played }}</td>
+          <td>{{ team.pts }}</td>
+          <td>{{ team.won }}</td>
+          <td>{{ team.draw }}</td>
+          <td>{{ team.lost }}</td>
+          
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

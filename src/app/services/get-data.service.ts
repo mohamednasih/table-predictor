@@ -7,7 +7,7 @@ import { League } from '../models/league';
   providedIn: 'root'
 })
 export class GetDataService {
-  leagues:string[]=["PL","LA LIGA"];// leagues fetching ids
+  leagues:string[]=["PL","LIGA"];// leagues fetching ids
   host:string="http://localhost:3000/"
   constructor(private httpClient:HttpClient) { }
   getLeagues():Observable<string[]>{
