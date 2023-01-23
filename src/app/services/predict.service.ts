@@ -139,12 +139,42 @@ export class PredictService {
         this.teamsToPredict.get(this.selectedLeague.id)!.splice(index, 1);
       }
     })
-    
+    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
     this.sendFixturesToPredict()
    
   }
   toBePredicted(name:string):boolean{
     
      return this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name)!=-1;
+  }
+
+  getProgress(){
+    var numberOfPredictions=this.selectedLeague.fixtures.filter((fi:Fixture)=>(fi.fixtureState!=null &&(this.toBePredicted(fi.away) || this.toBePredicted(fi.away)))).length;
+    var numberofFixtures=this.selectedLeague.fixtures.filter((fi:Fixture)=>((this.toBePredicted(fi.away) || this.toBePredicted(fi.away)))).length;
+    console.log("progress",numberOfPredictions/numberofFixtures)
+    return (numberOfPredictions/numberofFixtures)*100;
+  }
+  removeTeamsFromPrediction(names: string[]) {
+    
+    names.forEach((name)=>{
+      if (this.toBePredicted(name)) {
+        var index = this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name);
+        this.teamsToPredict.get(this.selectedLeague.id)!.splice(index, 1);
+      } 
+    })
+    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
+    this.sendFixturesToPredict()
+   
+  }
+  addTeamsToPrediction(names: string[]) {
+    
+    names.forEach((name)=>{
+      if (!this.toBePredicted(name)) {
+        this.teamsToPredict.get(this.selectedLeague.id)!.push(name)
+      } 
+    })
+    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
+    this.sendFixturesToPredict()
+   
   }
 }

@@ -18,4 +18,7 @@ export class PredictFixtureComponent implements OnInit{
       console.log(this.fixturesToPrecict)
     })
   }
+  converFloatToInt(number:number){
+    return parseInt(number+"")
+  }
 }
