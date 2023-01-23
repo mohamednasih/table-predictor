@@ -37,7 +37,9 @@ export class TableComponent implements OnInit {
 
   }
   onlyBottom4(){
-    this.predictService.removeOrAddTeamToPrediction(this.table.filter((f,index)=>index<this.table.length-4).map(t=>t.name));
+    this.predictService.removeTeamsFromPrediction(this.table.filter((f,index)=>index<this.table.length-4).map(t=>t.name));
+    this.predictService.addTeamsToPrediction(this.table.filter((f,index)=>index>this.table.length-4).map(t=>t.name));
+    //this.predictService.removeOrAddTeamToPrediction(this.table.filter((f,index)=>index<this.table.length-4).map(t=>t.name));
 
   }
 }
