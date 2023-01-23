@@ -1,11 +1,11 @@
 <div *ngIf="fixturesToPrecict != null">
     <div class="text-center  mx-2 progress mt" style="height: 20px;">
-        <div class="progress-bar" role="progressbar" style="width: {{predictService.getProgress()}}%;" 
+        <div class="mt-4 progress-bar" role="progressbar" style="width: {{predictService.getProgress()}}%;" 
         [attr.aria-valuenow]="predictService.getProgress()" aria-valuemin="0" aria-valuemax="100">
          {{ converFloatToInt(predictService.getProgress())}}%
         </div>
       </div>
-    <div class="text-center "  *ngFor="let fixtureToPrecict of fixturesToPrecict ;let i=index" [ngClass]="i == 0 ? '' : 'd-none d-sm-block'">
+    <div class="text-center border-bottom pb-sm-3"  *ngFor="let fixtureToPrecict of fixturesToPrecict ;let i=index" [ngClass]="i == 0 ? '' : 'd-none d-sm-block'">
      
       <div class="row mt-4 " >
         <div class="col-4">

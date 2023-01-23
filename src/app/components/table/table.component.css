@@ -1,0 +1,13 @@
+.check{
+    width: 100px;
+    max-width: 0.8rem
+}
+table, table tbody{
+    height: 100vh;
+    max-height: 100vh;
+
+}
+
+td img{
+    max-width: 1.5rem;
+}

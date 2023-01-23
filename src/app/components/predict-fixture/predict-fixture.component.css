@@ -1,0 +1,9 @@
+.mt{
+    margin-top: 1rem !important;
+}
+
+@media only screen and (max-width: 600px) {
+    .border-bottom{
+        border: none !important;
+    }
+  }
