@@ -2,12 +2,13 @@
     <div class="row my-sm-0 my-4 justify-content-between align-items-center">
       <div class="col-sm-4 col-12 text-center mt-sm-2">
         <select class="w-100"
-          (change)=" getLeagueByName($any($event.target).value)"
+         #leagueName
+          (change)=" this.getLeagueByName($any($event.target).value)"
           class=" form-select form-select-md "
           aria-label=".form-select-lg example"
         >
           <option
-            *ngFor="let league of leagueNames"
+            *ngFor="let league of this.predictService.getLeagues() | async"
             value="{{ league }}"
           >
             {{ league }}
@@ -20,9 +21,9 @@
       <div class="col-sm-4 col-6 mt-2 text-center">
         <button type="button" class="btn btn-danger w-100" (click)="onlyBottom4()">BOTTOM 4</button>
       </div>
-     
+
     </div>
-    <table class="table">
+    <table *ngIf="leagueName.value!= '' " class="table">
       <thead>
         <tr>
           <th>#</th>
@@ -33,13 +34,13 @@
           <th>D</th>
           <th>L</th>
           <th>Predict?</th>
-         
+
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let team of table; let i = index">
+        <tr *ngFor="let team of this.predictService.getLeague(leagueName.value) |async; let i = index">
           <td>{{ i + 1 }}</td>
-  
+
           <td class="">
             <img
               class="d-none d-sm-inline"
@@ -56,7 +57,8 @@
           <td>{{ team.lost }}</td>
           <td class="check">
             <input
-              (click)="predictService.removeOrAddTeamToPrediction([team.name])"
+              #toBePredicted
+              (change)="removeOrAddTeamToPrediction($event,team.name)"
               class="form-check-input"
               type="checkbox"
               value=""
@@ -64,9 +66,8 @@
               [checked]="predictService.toBePredicted(team.name)"
             />
           </td>
-          
+
         </tr>
       </tbody>
     </table>
   </div>
-  

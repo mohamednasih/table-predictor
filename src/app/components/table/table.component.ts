@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit ,ChangeDetectorRef, AfterContentChecked} from '@angular/core';
 import { OnSameUrlNavigation } from '@angular/router';
 import { League } from 'src/app/models/league';
 import { Team } from 'src/app/models/team';
@@ -9,37 +9,37 @@ import { PredictService } from 'src/app/services/predict.service';
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css']
 })
-export class TableComponent implements OnInit {
-    leagueNames!:string[];
-    table!:Team[];
-    constructor(public predictService:PredictService){
+export class TableComponent implements OnInit,AfterContentChecked {
+
+    constructor(public predictService:PredictService,    private changeDetector: ChangeDetectorRef,
+      ){
 
     }
+  ngAfterContentChecked(): void {
+    this.changeDetector.detectChanges();
+  }
   ngOnInit(): void {
-    this.predictService
-                      .getLeagues()
-                      .subscribe((leagueNames)=>  
-                                              {this.leagueNames=leagueNames;
-                                              this.getLeagueByName(leagueNames[0])
-                                              }
-                                )
+
   }
   getLeagueByName(name:string){
 
-    this.predictService.getLeague(name).subscribe((table)=>{
-      this.table=table;
-      console.log(this.table)
-    })
-  }
-  onlyTOP4(){
-    this.predictService.removeTeamsFromPrediction(this.table.filter((f,index)=>index>4-1).map(t=>t.name));
-    this.predictService.addTeamsToPrediction(this.table.filter((f,index)=>index<4).map(t=>t.name));
 
   }
+  onlyTOP4(){
+    this.predictService.onlyTop4()
+
+  }
+  removeOrAddTeamToPrediction($event:any,name:string){
+      console.log(name,$event)
+      if(!$event.target.checked){
+        this.predictService.removeTeamsFromPrediction([name])
+      }else{
+        this.predictService.addTeamsToPrediction([name])
+      }
+  }
   onlyBottom4(){
-    this.predictService.removeTeamsFromPrediction(this.table.filter((f,index)=>index<this.table.length-4).map(t=>t.name));
-    this.predictService.addTeamsToPrediction(this.table.filter((f,index)=>index>this.table.length-4).map(t=>t.name));
-    //this.predictService.removeOrAddTeamToPrediction(this.table.filter((f,index)=>index<this.table.length-4).map(t=>t.name));
+    this.predictService.onlyBottom4()
+
 
   }
 }

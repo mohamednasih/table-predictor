@@ -12,6 +12,7 @@ import { GetDataService } from './get-data.service';
   providedIn: 'root',
 })
 export class PredictService {
+
   private leagueIds!: string[];
   private leagues: League[] = [];
   private selectedLeague!: League;
@@ -33,30 +34,42 @@ export class PredictService {
     }
   }
   sendTable() {
-    this.communicationService.subjectTable.next(this.selectedLeague.table);
+    this.communicationService.subjectTable.next(this.selectedLeague.table.sort((teamA,teamB)=>{
+      if(teamA.pts>teamB.pts){
+        return -1
+      }
+      if(teamA.pts<teamB.pts){
+        return 1;
+      }
+      return 0
+    }));
   }
   getLeague(name: string): Observable<Team[]> {
-    let league: League = this.leagues.find(
-      (league) => league.id == name
-    ) as League;
-    if (league) {
-      this.selectedLeague = league;
-      this.sendTable();
-      this.sendFixturesToPredict();
-    } else {
-      var getLeagueByName = this.getDataService.getLeague(name);
-      getLeagueByName.subscribe((league) => {
-        this.leagues.push(league);
-        this.teamsToPredict.set(
-          league.id,
-          league.table.map((team) => team.name)
-        );
+    if (!!name) {
+      let league: League = this.leagues.find(
+        (league) => league.id == name
+      ) as League;
+      if (league) {
         this.selectedLeague = league;
         this.sendTable();
         this.sendFixturesToPredict();
-      });
+      } else {
+        var getLeagueByName = this.getDataService.getLeague(name);
+        getLeagueByName.subscribe((league) => {
+          this.leagues.push(league);
+          this.teamsToPredict.set(
+            league.id,
+            league.table.map((team) => team.name)
+          );
+          this.selectedLeague = league;
+          this.sendTable();
+          this.sendFixturesToPredict();
+        });
+      }
+      return this.communicationService.tableObservaleTable;
+    }else{
+      return of([])
     }
-    return this.communicationService.tableObservaleTable;
   }
   getFixtures(): Observable<Fixture[]> {
     return this.communicationService.fixturesObservable;
@@ -65,10 +78,10 @@ export class PredictService {
     var i = 0;
     var fixtures: Fixture[] = [];
     this.selectedLeague.fixtures.every((fixture) => {
-      var fixtureNotPredictedYet:boolean=fixture.fixtureState == null
-      var fixtureOfTeamToPredict:boolean=this.toBePredicted(fixture.home) || this.toBePredicted(fixture.away)
-      if (fixtureNotPredictedYet  && fixtureOfTeamToPredict ) {
-        console.log('push ' + i);
+      var fixtureNotPredictedYet: boolean = fixture.fixtureState == null;
+      var fixtureOfTeamToPredict: boolean =
+        this.toBePredicted(fixture.home) || this.toBePredicted(fixture.away);
+      if (fixtureNotPredictedYet && fixtureOfTeamToPredict) {
         fixtures.push(fixture);
       }
       if (fixtures.length == 9) {
@@ -98,7 +111,6 @@ export class PredictService {
       team.pts = team.pts + 3;
       team.won = team.won + 1;
       team.played = team.played! + 1;
-      this.sendTable();
     }
   }
   teamLost(name: string) {
@@ -106,7 +118,6 @@ export class PredictService {
     if (team != null) {
       team.lost = team.lost + 1;
       team.played = team.played! + 1;
-      this.sendTable();
     }
   }
   teamDraw(name: string) {
@@ -117,64 +128,82 @@ export class PredictService {
       team.draw = team.draw + 1;
       team.pts = team.pts + 1;
       team.played = team.played! + 1;
-      this.sendTable();
     }
   }
   predict(fixtureToPrecict: Fixture, prediction: string) {
     let fi = this.selectedLeague.fixtures.find(
       (f) => f.home == fixtureToPrecict.home && f.away == fixtureToPrecict.away
     );
-    fi!.fixtureState = prediction;
-
-    this.sendFixturesToPredict();
-  }
-
-  removeOrAddTeamToPrediction(names: string[]) {
-    
-    names.forEach((name)=>{
-      if (!this.toBePredicted(name)) {
-        this.teamsToPredict.get(this.selectedLeague.id)!.push(name);
-      } else {
-        var index = this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name);
-        this.teamsToPredict.get(this.selectedLeague.id)!.splice(index, 1);
+    if(!!fi){
+      fi!.fixtureState = prediction;
+      switch(prediction){
+        case(fi.home):{
+          this.teamWon(fi.home);this.teamLost(fi.away);break;
+        }
+        case(fi.away):{
+          this.teamLost(fi.home);this.teamWon(fi.away);break;
+        }
+        case(fi.away):{
+          this.teamDraw(fi.home);this.teamDraw(fi.away);break;
+        }
       }
-    })
-    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
-    this.sendFixturesToPredict()
-   
-  }
-  toBePredicted(name:string):boolean{
-    
-     return this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name)!=-1;
+    this.sendTable()
+    this.sendFixturesToPredict();
+    }
+
   }
 
-  getProgress(){
-    var numberOfPredictions=this.selectedLeague.fixtures.filter((fi:Fixture)=>(fi.fixtureState!=null &&(this.toBePredicted(fi.away) || this.toBePredicted(fi.away)))).length;
-    var numberofFixtures=this.selectedLeague.fixtures.filter((fi:Fixture)=>((this.toBePredicted(fi.away) || this.toBePredicted(fi.away)))).length;
-    console.log("progress",numberOfPredictions/numberofFixtures)
-    return (numberOfPredictions/numberofFixtures)*100;
+
+  toBePredicted(name: string): boolean {
+    return this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name) != -1;
+  }
+
+  getProgress() {
+    var numberOfPredictions = this.selectedLeague.fixtures.filter(
+      (fi: Fixture) =>
+        fi.fixtureState != null &&
+        (this.toBePredicted(fi.away) || this.toBePredicted(fi.away))
+    ).length;
+    var numberofFixtures = this.selectedLeague.fixtures.filter(
+      (fi: Fixture) =>
+        this.toBePredicted(fi.away) || this.toBePredicted(fi.away)
+    ).length;
+    console.log("progress",(numberOfPredictions / numberofFixtures) * 100)
+    return (numberOfPredictions / numberofFixtures) * 100;
   }
   removeTeamsFromPrediction(names: string[]) {
-    
-    names.forEach((name)=>{
+    names.forEach((name) => {
       if (this.toBePredicted(name)) {
-        var index = this.teamsToPredict.get(this.selectedLeague.id)!.indexOf(name);
+        var index = this.teamsToPredict
+          .get(this.selectedLeague.id)!
+          .indexOf(name);
         this.teamsToPredict.get(this.selectedLeague.id)!.splice(index, 1);
-      } 
-    })
-    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
-    this.sendFixturesToPredict()
-   
+      }
+    });
+    this.sendFixturesToPredict();
   }
+  onlyTop4(){
+    var nonTop4Teams=this.selectedLeague.table.filter((f,index)=>index>4-1).map(t=>t.name);
+    var top4Teams=this.selectedLeague.table.filter((f,index)=>index<4).map(t=>t.name)
+    this.removeTeamsFromPrediction(nonTop4Teams)
+    this.addTeamsToPrediction(top4Teams)
+
+
+  }
+  onlyBottom4() {
+    var bottom4Teams=this.selectedLeague.table.filter((f,index)=>index>=this.selectedLeague.table.length-4).map(t=>t.name);
+    var nonBottom4Teams=this.selectedLeague.table.filter((f,index)=>index<this.selectedLeague.table.length-4).map(t=>t.name)
+    this.removeTeamsFromPrediction(nonBottom4Teams)
+    this.addTeamsToPrediction(bottom4Teams)
+  }
+
   addTeamsToPrediction(names: string[]) {
-    
-    names.forEach((name)=>{
+    names.forEach((name) => {
       if (!this.toBePredicted(name)) {
-        this.teamsToPredict.get(this.selectedLeague.id)!.push(name)
-      } 
-    })
-    console.log(names,this.teamsToPredict.get(this.selectedLeague.id))
-    this.sendFixturesToPredict()
-   
+        this.teamsToPredict.get(this.selectedLeague.id)!.push(name);
+      }
+    });
+    console.log(names, this.teamsToPredict.get(this.selectedLeague.id));
+    this.sendFixturesToPredict();
   }
 }

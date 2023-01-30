@@ -15,7 +15,6 @@ export class PredictFixtureComponent implements OnInit{
   ngOnInit(): void {
     this.predictService.getFixtures().subscribe((fixturesToPrecict)=>{
       this.fixturesToPrecict=fixturesToPrecict;
-      console.log(this.fixturesToPrecict)
     })
   }
   converFloatToInt(number:number){
